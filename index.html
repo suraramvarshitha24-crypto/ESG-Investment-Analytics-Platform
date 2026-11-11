@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ESG Investment Analytics</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand"><span class="brand-icon">E</span><div><strong>ESG Insights</strong><small>Investment Analytics</small></div></div>
+    <div class="nav-label">WORKSPACE</div>
+    <a class="nav-link active" href="#overview"><span>▦</span> Overview</a>
+    <a class="nav-link" href="#performance"><span>◔</span> ESG Performance</a>
+    <a class="nav-link" href="#industry-section"><span>▤</span> Industry Analysis</a>
+    <a class="nav-link" href="#company-section"><span>⌕</span> Company Explorer</a>
+    <a class="nav-link" href="#advanced-section"><span>▥</span> Compare & Portfolio</a>
+    <a class="nav-link" href="#ml-section"><span>✳</span> ML & Explainability</a>
+    <div class="sidebar-note"><span class="status-dot"></span><div><strong>Dataset connected</strong><small>Local CSV · Flask API</small></div></div>
+    <div class="sidebar-footer">Student Project · 2026</div>
+  </aside>
+
+  <main class="main-content" id="overview">
+    <header class="topbar"><div><div class="eyebrow">SUSTAINABLE FINANCE / ANALYTICS</div><h1>ESG Investment Dashboard</h1><p>Understand sustainability performance alongside company financials.</p></div><div class="topbar-pill"><span class="status-dot"></span> Backend connected</div></header>
+
+    <section class="section-heading"><div><h2>Portfolio overview</h2><p>Key indicators across the available company records.</p></div><button class="button button-light" id="refreshButton">↻ Refresh data</button></section>
+    <section class="stats-grid">
+      <article class="stat-card"><div class="stat-top"><span>Total records</span><span class="stat-icon green">▤</span></div><div class="stat-value" id="records">—</div><div class="stat-foot">Company-year observations</div></article>
+      <article class="stat-card"><div class="stat-top"><span>Companies</span><span class="stat-icon blue">⌂</span></div><div class="stat-value" id="companies">—</div><div class="stat-foot">Unique company names</div></article>
+      <article class="stat-card"><div class="stat-top"><span>Average ESG score</span><span class="stat-icon purple">◈</span></div><div class="stat-value" id="average">—<small>/ 100</small></div><div class="stat-foot">Mean of three ESG pillars</div></article>
+      <article class="stat-card"><div class="stat-top"><span>High performers</span><span class="stat-icon orange">↗</span></div><div class="stat-value" id="high">—</div><div class="stat-foot">Calculated score ≥ 70</div></article>
+    </section>
+
+    <section class="content-grid" id="performance">
+      <article class="panel chart-panel"><div class="panel-heading"><div><h3>ESG performance distribution</h3><p>Number of records in each score category</p></div><span class="mini-tag">All records</span></div><div class="chart-wrap"><canvas id="esgChart"></canvas></div><div class="legend-row"><span><i class="legend-dot high-dot"></i>High</span><span><i class="legend-dot medium-dot"></i>Medium</span><span><i class="legend-dot low-dot"></i>Low</span></div></article>
+      <article class="panel top-panel"><div class="panel-heading"><div><h3>Top ESG records</h3><p>Highest calculated ESG scores</p></div><span class="trophy">★</span></div><div id="topResults" class="top-list"><div class="loading">Loading top records…</div></div><button class="button button-outline full-button" id="showTopButton">Reload top 10</button></article>
+    </section>
+
+    <section class="content-grid lower-grid" id="industry-section">
+      <article class="panel"><div class="panel-heading"><div><h3>Industry analysis</h3><p>Compare average ESG scores and revenue.</p></div></div><label for="industry">Choose an industry</label><div class="input-row"><select id="industry"><option value="">Loading industries…</option></select><button class="button button-primary" id="analyzeIndustryButton">Analyze</button></div><div id="industryResults" class="result-box empty-state">Choose an industry to view its metrics.</div></article>
+      <article class="panel" id="company-section"><div class="panel-heading"><div><h3>Company explorer</h3><p>Look up a company's year-by-year performance.</p></div></div><label for="companyName">Company name</label><form class="input-row" id="companyForm"><input id="companyName" placeholder="e.g. Company_1" autocomplete="off"><button class="button button-primary" type="submit">Search</button></form><div id="companyResults" class="result-box empty-state">Search using a company name, such as Company_1.</div></article>
+    </section>
+
+    <section class="section-heading advanced-heading" id="advanced-section"><div><h2>Company comparison & portfolio</h2><p>Compare recent company records and calculate a weighted portfolio ESG score.</p></div><a class="button button-light" href="/api/report.csv">Download company report (CSV)</a></section>
+    <section class="content-grid advanced-grid">
+      <article class="panel"><div class="panel-heading"><div><h3>Compare companies</h3><p>Select 2–5 companies to compare their latest available year.</p></div></div>
+        <label for="compareCompanies">Companies (use Ctrl to select more than one)</label>
+        <select id="compareCompanies" multiple size="6" class="multi-select"></select>
+        <button class="button button-primary section-button" id="compareButton">Compare selected companies</button>
+        <div id="compareResults" class="result-box empty-state">Choose companies and press Compare.</div>
+      </article>
+      <article class="panel"><div class="panel-heading"><div><h3>Portfolio ESG calculator</h3><p>Choose holdings and enter weights that add up to 100%.</p></div></div>
+        <div class="portfolio-rows" id="portfolioRows">
+          <div class="portfolio-row"><select class="portfolio-company" aria-label="Portfolio company 1"></select><input class="portfolio-weight" type="number" min="0" max="100" value="40" aria-label="Weight 1 percent"></div>
+          <div class="portfolio-row"><select class="portfolio-company" aria-label="Portfolio company 2"></select><input class="portfolio-weight" type="number" min="0" max="100" value="35" aria-label="Weight 2 percent"></div>
+          <div class="portfolio-row"><select class="portfolio-company" aria-label="Portfolio company 3"></select><input class="portfolio-weight" type="number" min="0" max="100" value="25" aria-label="Weight 3 percent"></div>
+        </div>
+        <div class="portfolio-weight-note">Weights must total 100%.</div>
+        <button class="button button-primary section-button" id="portfolioButton">Calculate portfolio ESG score</button>
+        <div id="portfolioResults" class="result-box empty-state">Your weighted portfolio result will appear here.</div>
+      </article>
+    </section>
+
+    <section class="section-heading advanced-heading" id="ml-section"><div><h2>Machine learning & explainability</h2><p>Compare basic classifiers and inspect the factors behind one company's demonstration prediction.</p></div></section>
+    <section class="content-grid advanced-grid">
+      <article class="panel"><div class="panel-heading"><div><h3>Model evaluation</h3><p>Accuracy, precision, recall and F1-score on a held-out company split.</p></div></div>
+        <div id="modelNote" class="notice-box">Loading model evaluation…</div>
+        <div class="table-scroll"><table><thead><tr><th>Model</th><th>Accuracy</th><th>Precision</th><th>Recall</th><th>F1</th></tr></thead><tbody id="modelResults"><tr><td colspan="5" class="loading">Loading metrics…</td></tr></tbody></table></div>
+      </article>
+      <article class="panel"><div class="panel-heading"><div><h3>Explain a company prediction</h3><p>Choose a company to see predicted risk and key feature contributions.</p></div></div>
+        <label for="mlCompany">Company</label><select id="mlCompany"></select>
+        <button class="button button-primary section-button" id="predictButton">Predict ESG risk</button>
+        <div id="predictionResults" class="result-box empty-state">Select a company to run the model.</div>
+      </article>
+    </section>
+
+    <section class="panel records-panel"><div class="panel-heading records-heading"><div><h3>Explore company records</h3><p>Search the dataset and browse records by page.</p></div><span id="recordCount" class="mini-tag">Loading…</span></div><form id="recordsForm" class="records-toolbar"><input id="recordSearch" placeholder="Search company, industry or region…"><button class="button button-primary" type="submit">Search records</button></form><div class="table-scroll"><table><thead><tr><th>Company</th><th>Industry</th><th>Region</th><th>Year</th><th>Revenue</th><th>Profit margin</th><th>ESG score</th><th>Category</th></tr></thead><tbody id="recordsBody"><tr><td colspan="8" class="loading">Loading records…</td></tr></tbody></table></div><div class="pagination"><span id="pageInfo">—</span><div><button class="button button-light" id="prevPage">← Previous</button><button class="button button-light" id="nextPage">Next →</button></div></div></section>
+    <footer>ESG Insights · Built with Python, Flask, Pandas and Chart.js <span>For academic project use</span></footer>
+  </main>
+  <div id="toast" class="toast" role="status"></div>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
